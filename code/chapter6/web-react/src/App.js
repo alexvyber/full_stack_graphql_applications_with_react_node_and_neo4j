@@ -3,18 +3,28 @@ import BusinessResults from "./BusinessResults";
 
 import { gql, useQuery } from "@apollo/client";
 
+const BUSINESS_DETAILS_FRAGMENT = gql`
+  fragment businessDetails on Business {
+    businessId
+    name
+    address
+    categories {
+      name
+    }
+  }
+`;
+
 const GET_BUSINESSES_QUERY = gql`
   query BusinessesByCategory($selectedCategory: String!) {
-    businesses(where: { categories_SOME: { name_CONTAINS: $selectedCategory } }) {
-      businessId
-      name
-      address
-      categories {
-        name
-      }
+    businesses(
+      where: { categories_SOME: { name_CONTAINS: $selectedCategory } }
+    ) {
+      ...businessDetails
       isStarred @client
     }
   }
+
+  ${BUSINESS_DETAILS_FRAGMENT}
 `;
 
 function App() {

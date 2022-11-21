@@ -1,15 +1,12 @@
 const { ApolloServer } = require("apollo-server");
-const neo4j = require("neo4j-driver");
-const { Neo4jGraphQL } = require("@neo4j/graphql");
 
-const resolvers = {
-  Business: {
-    waitTime: (obj, args, context, info) => {
-      var options = [0, 5, 10, 15, 30, 45];
-      return options[Math.floor(Math.random() * options.length)];
-    },
-  },
-};
+const neo4j = require("neo4j-driver");
+
+const { Neo4jGraphQL } = require("@neo4j/graphql");
+const driver = neo4j.driver(
+  "bolt://localhost:7687",
+  neo4j.auth.basic("neo4j", "letmein")
+);
 
 const typeDefs = /* GraphQL */ `
   type Query {
@@ -67,13 +64,7 @@ const typeDefs = /* GraphQL */ `
   }
 `;
 
-const driver = neo4j.driver(
-  "bolt://localhost:7687",
-  neo4j.auth.basic("neo4j", "letmein")
-);
-
-const neoSchema = new Neo4jGraphQL({ typeDefs, resolvers, driver });
-
+const neoSchema = new Neo4jGraphQL({ typeDefs, driver });
 neoSchema.getSchema().then((schema) => {
   const server = new ApolloServer({
     schema,
